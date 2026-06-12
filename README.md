@@ -9,21 +9,11 @@ language spoken by ~50,000 people in Phek district, Nagaland, northeast India.
 
 ## Why this matters
 
-My children grew up in Australia and do not speak Chokri — my mother tongue. They
-struggle to communicate with their grandparents back in Nagaland. This is not an
-isolated story. Many Chakhesang people living outside Nagaland face the same challenge:
-raising children who cannot speak the language of their roots, and watching the
-connection to home quietly fade.
+My children grew up in Australia and understand only a little Chokri — my mother tongue. They struggle to speak with their grandparents and the older people in our village who do not speak English. This gap is common among Chakhesang families living outside Nagaland, where passing the language on to the next generation is a real challenge.
 
-Chokri is a dying language. If we do nothing, there is a real chance the next
-generation will not be able to speak it at all. This project is one small step
-toward changing that — making Chokri more accessible, easier to learn, and harder
-to lose.
+This project is one small step toward bridging that gap — making Chokri more accessible across distance and generations.
 
-On the technical side, Chokri is not supported by any major translation platform
-(Google, Microsoft, DeepL) and is absent from Meta's NLLB-200, despite it covering
-200+ languages. This project creates the first open-source translation tool for
-Chokri — and more importantly, builds the community infrastructure to keep improving it.
+On the technical side, Chokri is absent from every major translation platform (Google, Microsoft, DeepL) and from Meta's NLLB-200, despite it covering 200+ languages. This is the first open-source translation tool for Chokri.
 
 ---
 
