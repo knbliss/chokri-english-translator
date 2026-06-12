@@ -5,6 +5,8 @@ language spoken by ~50,000 people in Phek district, Nagaland, northeast India.
 
 **Live demo:** [huggingface.co/spaces/knbliss/chokri-english-translator](https://huggingface.co/spaces/knbliss/chokri-english-translator)
 
+> **Note:** The model is currently being retrained on an improved dataset. Translation quality will be limited until the new model is live — we appreciate your patience.
+
 ---
 
 ## Why this matters
