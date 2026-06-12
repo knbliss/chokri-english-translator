@@ -17,6 +17,13 @@ user_contributions.csv
 page_source.html
 /tmp/
 
+# Private dataset files — kept local only
+chokri_english_MASTER.csv
+data/
+1_update_to_web.py
+supabase_setup.sql
+deployment/hf_spaces_README.md
+
 # macOS
 .DS_Store
 ~$*
