@@ -9,8 +9,10 @@ language spoken by ~50,000 people in Phek district, Nagaland, northeast India.
 
 ## Why this matters
 
-Chokri has no existing digital translation tools. This project creates the first
-one — and more importantly, builds the community infrastructure to keep improving it.
+Chokri is not supported by any major translation platform (Google, Microsoft, DeepL)
+and is absent from Meta's NLLB-200, despite it covering 200+ languages. This project
+creates the first open-source translation tool for Chokri — and more importantly,
+builds the community infrastructure to keep improving it.
 
 ---
 
