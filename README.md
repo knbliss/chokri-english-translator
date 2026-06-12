@@ -23,17 +23,9 @@ builds the community infrastructure to keep improving it.
 | v1.0 | 8,040 | Chokri New Testament (Bible Society of India), Bielenberg 2001 linguistics paper |
 | v1.1 | _in progress_ | + community contributions (reviewed) |
 
-The dataset is in [`chokri_english_MASTER.csv`](chokri_english_MASTER.csv).
-Each row: `book, chapter, verse, chokri, english, source`.
-
-### Download
-
-```bash
-git clone https://github.com/knbliss/chokri-english-translator
-```
-
-Or download just the dataset:
-[`chokri_english_MASTER.csv`](chokri_english_MASTER.csv)
+The dataset is maintained privately to protect the integrity of community contributions
+and ensure the Chokri-speaking community retains stewardship over their language data.
+The trained model and tools are open-source; the underlying corpus is not publicly distributed.
 
 ---
 
@@ -49,12 +41,6 @@ Hosted on HuggingFace Hub: `knbliss/chokri-nllb-finetuned`
 ## Repository structure
 
 ```
-├── chokri_english_MASTER.csv   ← full dataset (8,040+ pairs)
-├── data/
-│   ├── train.csv               ← 80% training split
-│   ├── val.csv                 ← 10% validation split
-│   └── test.csv                ← 10% test split
-├── 1_update_to_web.py          ← scrape additional Bible data
 ├── 2_clean_split.py            ← clean + train/val/test split
 ├── 3_finetune.py               ← fine-tune NLLB-200
 ├── 4_evaluate.py               ← BLEU score evaluation
@@ -63,10 +49,8 @@ Hosted on HuggingFace Hub: `knbliss/chokri-nllb-finetuned`
 ├── collaboration/
 │   ├── 1_SHEET_SETUP_GUIDE.md  ← set up the community review Google Sheet
 │   ├── 2_CONTRIBUTOR_INVITE.md ← email template for recruiting reviewers
-│   └── merge_verified_pairs.py ← merge reviewer-approved pairs into MASTER
-└── deployment/
-    ├── PHASE2_DEPLOYMENT_GUIDE.md
-    └── hf_spaces_README.md
+│   ├── 3_ORTHOGRAPHY_GUIDE.md  ← Chokri spelling and orthography reference
+│   └── merge_verified_pairs.py ← merge reviewer-approved pairs into corpus
 ```
 
 ---
@@ -104,17 +88,6 @@ so you can run it without the fine-tuned weights.
 
 ---
 
-## Versioned releases
-
-Dataset releases are published as [GitHub Releases](../../releases):
-
-- **v1.0** — 8,040 pairs (Bible + Bielenberg corpus)
-- **v1.1** — _upcoming_ — + community contributions
-
-Each release includes the full CSV, the train/val/test splits, and a model checkpoint.
-
----
-
 ## Contributors
 
 | Role | Names |
@@ -130,7 +103,6 @@ Community contributors are listed in the release notes for each dataset version.
 ## License
 
 - **Code**: MIT
-- **Dataset**: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — free to use with attribution
 - **Model weights**: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
 ---
@@ -140,7 +112,7 @@ Community contributors are listed in the release notes for each dataset version.
 ```bibtex
 @misc{chokri-translator-2025,
   title  = {Chokri--English Neural Machine Translation},
-  author = {YOUR NAME},
+  author = {Kuyi},
   year   = {2025},
   url    = {https://github.com/knbliss/chokri-english-translator}
 }
