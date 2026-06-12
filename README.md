@@ -3,7 +3,7 @@
 The first open-source machine translation system for **Chokri**, a Tibeto-Burman
 language spoken by ~50,000 people in Phek district, Nagaland, northeast India.
 
-**Live demo:** [huggingface.co/spaces/YOUR_HF_USERNAME/chokri-english-translator](https://huggingface.co/spaces/YOUR_HF_USERNAME/chokri-english-translator)
+**Live demo:** [huggingface.co/spaces/knbliss/chokri-english-translator](https://huggingface.co/spaces/knbliss/chokri-english-translator)
 
 ---
 
@@ -27,7 +27,7 @@ Each row: `book, chapter, verse, chokri, english, source`.
 ### Download
 
 ```bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/chokri-english-translator
+git clone https://github.com/knbliss/chokri-english-translator
 ```
 
 Or download just the dataset:
@@ -40,7 +40,7 @@ Or download just the dataset:
 Fine-tuned from [`facebook/nllb-200-distilled-600M`](https://huggingface.co/facebook/nllb-200-distilled-600M)
 on the 8,040-pair Chokri corpus.
 
-Hosted on HuggingFace Hub: `YOUR_HF_USERNAME/chokri-nllb-finetuned`
+Hosted on HuggingFace Hub: `knbliss/chokri-nllb-finetuned`
 
 ---
 
@@ -90,7 +90,7 @@ All submissions go through a reviewer before entering the training corpus.
 ## Running locally
 
 ```bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/chokri-english-translator
+git clone https://github.com/knbliss/chokri-english-translator
 cd chokri-english-translator
 pip install -r requirements.txt
 python 5_app.py
@@ -117,7 +117,7 @@ Each release includes the full CSV, the train/val/test splits, and a model check
 
 | Role | Names |
 |------|-------|
-| Project lead | _your name_ |
+| Project lead | Kuyi |
 | Reviewers | _to be added_ |
 | Data sources | Chokri New Testament (Bible Society of India), Bielenberg (2001) |
 
@@ -140,6 +140,6 @@ Community contributors are listed in the release notes for each dataset version.
   title  = {Chokri--English Neural Machine Translation},
   author = {YOUR NAME},
   year   = {2025},
-  url    = {https://github.com/YOUR_GITHUB_USERNAME/chokri-english-translator}
+  url    = {https://github.com/knbliss/chokri-english-translator}
 }
 ```
