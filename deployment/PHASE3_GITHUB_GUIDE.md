@@ -71,23 +71,23 @@ page_source.html
 
 1. In your GitHub repo → **Releases** → **Create a new release**
 2. Tag: `v1.0`
-3. Title: `v1.0 — 8,245 Chokri–English sentence pairs`
+3. Title: `v1.0 — 8,040 Chokri–English sentence pairs`
 4. Description (copy-paste this):
 
 ```
 ## Chokri–English Dataset v1.0
 
-**8,245 sentence pairs** — the first versioned, publicly released Chokri corpus.
+**8,040 sentence pairs** — the first versioned, publicly released Chokri corpus.
 
 ### Sources
-- Bible (Nagamese script, New Testament + portions of Old Testament)
+- Chokri New Testament (Bible Society of India, sourced from bible.com)
 - Bielenberg (2001) linguistics reference paper
 
 ### Files
 - `chokri_english_MASTER.csv` — full dataset
-- `data/train.csv` — 80% training split (6,596 pairs)
-- `data/val.csv` — 10% validation split (824 pairs)
-- `data/test.csv` — 10% test split (825 pairs)
+- `data/train.csv` — 80% training split (~6,432 pairs)
+- `data/val.csv` — 10% validation split (~804 pairs)
+- `data/test.csv` — 10% test split (~804 pairs)
 
 ### Model
 Fine-tuned NLLB-200-distilled-600M checkpoint available at:

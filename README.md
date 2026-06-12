@@ -18,7 +18,7 @@ one — and more importantly, builds the community infrastructure to keep improv
 
 | Version | Pairs | Sources |
 |---------|-------|---------|
-| v1.0 | 8,245 | Bible (Nagamese script), Bielenberg 2001 linguistics paper |
+| v1.0 | 8,040 | Chokri New Testament (Bible Society of India), Bielenberg 2001 linguistics paper |
 | v1.1 | _in progress_ | + community contributions (reviewed) |
 
 The dataset is in [`chokri_english_MASTER.csv`](chokri_english_MASTER.csv).
@@ -38,7 +38,7 @@ Or download just the dataset:
 ## Model
 
 Fine-tuned from [`facebook/nllb-200-distilled-600M`](https://huggingface.co/facebook/nllb-200-distilled-600M)
-on the 8,245-pair Chokri corpus.
+on the 8,040-pair Chokri corpus.
 
 Hosted on HuggingFace Hub: `YOUR_HF_USERNAME/chokri-nllb-finetuned`
 
@@ -47,7 +47,7 @@ Hosted on HuggingFace Hub: `YOUR_HF_USERNAME/chokri-nllb-finetuned`
 ## Repository structure
 
 ```
-├── chokri_english_MASTER.csv   ← full dataset (8,245+ pairs)
+├── chokri_english_MASTER.csv   ← full dataset (8,040+ pairs)
 ├── data/
 │   ├── train.csv               ← 80% training split
 │   ├── val.csv                 ← 10% validation split
@@ -106,7 +106,7 @@ so you can run it without the fine-tuned weights.
 
 Dataset releases are published as [GitHub Releases](../../releases):
 
-- **v1.0** — 8,245 pairs (Bible + Bielenberg corpus)
+- **v1.0** — 8,040 pairs (Bible + Bielenberg corpus)
 - **v1.1** — _upcoming_ — + community contributions
 
 Each release includes the full CSV, the train/val/test splits, and a model checkpoint.
@@ -119,7 +119,7 @@ Each release includes the full CSV, the train/val/test splits, and a model check
 |------|-------|
 | Project lead | _your name_ |
 | Reviewers | _to be added_ |
-| Data sources | Bible (Nagamese Bible Society), Bielenberg (2001) |
+| Data sources | Chokri New Testament (Bible Society of India), Bielenberg (2001) |
 
 Community contributors are listed in the release notes for each dataset version.
 
