@@ -5,7 +5,7 @@ language spoken by ~50,000 people in Phek district, Nagaland, northeast India.
 
 **Live demo:** [huggingface.co/spaces/knbliss/chokri-english-translator](https://huggingface.co/spaces/knbliss/chokri-english-translator)
 
-> **Note:** The model is currently being retrained on an improved dataset. Translation quality will be limited until the new model is live — we appreciate your patience.
+> **Note:** The model is currently being retrained. Additionally, the training data is not yet based on the officially accepted Chokri standard — translations may reflect regional dialect variations. We are committed to adopting the official CCLB dataset when available.
 
 ---
 
@@ -29,6 +29,8 @@ On the technical side, Chokri is absent from every major translation platform (G
 The dataset is maintained privately to protect the integrity of community contributions
 and ensure the Chokri-speaking community retains stewardship over their language data.
 The trained model and tools are open-source; the underlying corpus is not publicly distributed.
+
+> **Note on dataset quality:** The Bible translation currently used as training data is not the version accepted by the **Chokri Chakhesang Literary Board (CCLB)** — the official body for Chokri language and literature. The current version contains accents and dialect features specific to a particular region of the Chokri-speaking population, which means translations may not reflect standard Chokri. The CCLB is working on an official dictionary and an accepted Bible translation. This project intends to adopt that official dataset when it becomes available, at which point translation quality will improve significantly.
 
 ---
 
