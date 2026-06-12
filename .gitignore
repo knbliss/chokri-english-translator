@@ -1,0 +1,22 @@
+# Model weights — large files hosted on HuggingFace Hub instead
+model_best/
+checkpoints/
+*.zip
+*.safetensors
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+chokri-env/
+.env
+.env.*
+
+# Local runtime files
+user_contributions.csv
+page_source.html
+/tmp/
+
+# macOS
+.DS_Store
+~$*
