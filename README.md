@@ -5,7 +5,7 @@ language spoken by ~50,000 people in Phek district, Nagaland, northeast India.
 
 **Live demo:** [huggingface.co/spaces/knbliss/chokri-english-translator](https://huggingface.co/spaces/knbliss/chokri-english-translator)
 
-> **Note:** The model is currently being retrained. Additionally, the training data is not yet based on the officially accepted Chokri standard — translations may reflect regional dialect variations. We are committed to adopting the official CCLB dataset when available.
+> **Note:** This is an early-stage prototype. Translations are based on an unofficial dialect version of Chokri and should not be treated as linguistically accurate. We are working with the CCLB to adopt the officially accepted Chokri standard.
 
 ---
 
@@ -30,7 +30,11 @@ The dataset is maintained privately to protect the integrity of community contri
 and ensure the Chokri-speaking community retains stewardship over their language data.
 The trained model and tools are open-source; the underlying corpus is not publicly distributed.
 
-> **Note on dataset quality:** The Bible translation currently used as training data is not the version accepted by the **Chokri Chakhesang Literary Board (CCLB)** — the official body for Chokri language and literature. The current version contains accents and dialect features specific to a particular region of the Chokri-speaking population, which means translations may not reflect standard Chokri. The CCLB is working on an official dictionary and an accepted Bible translation. This project intends to adopt that official dataset when it becomes available, at which point translation quality will improve significantly.
+> **Important — dataset and translation accuracy:** This tool is currently trained on a Bible translation that has **not** been accepted by the **Chokri Chakhesang Literary Board (CCLB)** — the official authority on Chokri language and literature. The version used contains accents and dialect features from a specific region, and does not represent standard Chokri.
+>
+> We do not want this tool to be used as a reference for correct Chokri spelling, grammar, or translation. It is an early-stage prototype, and we are actively working to replace the current dataset with the CCLB-accepted version. Until then, please treat all translations as approximate and unverified against the official standard.
+>
+> If you are from the CCLB or can help us access the official Chokri texts, please get in touch.
 
 ---
 
