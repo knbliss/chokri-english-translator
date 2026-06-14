@@ -45,6 +45,13 @@ on the 8,040-pair Chokri corpus.
 
 Hosted on HuggingFace Hub: `knbliss/chokri-nllb-finetuned`
 
+> **Current limitation — English → Chokri:**
+> Because Chokri is not in NLLB's language list, we use an existing language token as a stand-in
+> for Chokri during training. The base model's strong prior association with that token's original
+> language currently overrides the fine-tuning in the English → Chokri direction, causing it to
+> produce the wrong output language. The Chokri → English direction is available in the current
+> version. We are working on a solution for a future release.
+
 ---
 
 ## Repository structure
