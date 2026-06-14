@@ -76,11 +76,16 @@ Hosted on HuggingFace Hub: `knbliss/chokri-nllb-finetuned`
 There are two ways to help:
 
 ### As a Chokri speaker (no technical skills needed)
-- **Submit a sentence pair** via the [Contributor Form](https://forms.gle/rqhZSiRm2VTY23t49) — no account needed
-- **Correct** a wrong translation using the live app above
-- **Add** a sentence pair you know (proverb, everyday phrase, story)
 
-All submissions go through a reviewer before entering the training corpus.
+There are two ways to submit a sentence pair:
+
+**Option 1 — Google Form** (easiest, no account needed):
+Fill in the [Contributor Form](https://forms.gle/rqhZSiRm2VTY23t49). Submissions sync automatically into the review queue every hour.
+
+**Option 2 — Translator app** (directly in the tool):
+Use the **Add New Pair** tab or the **Correct a Translation** tab at the [live demo](https://huggingface.co/spaces/knbliss/chokri-english-translator).
+
+All submissions go through an appointed reviewer before entering the training corpus.
 
 ### As a technical contributor
 1. Fork this repo
