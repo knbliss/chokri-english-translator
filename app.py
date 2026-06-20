@@ -461,4 +461,4 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
             outputs=[action_msg] + _REVIEW_OUTPUTS,
         )
 
-demo.launch()
+demo.launch(ssr_mode=False)
