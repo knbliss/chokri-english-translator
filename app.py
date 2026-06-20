@@ -17,8 +17,6 @@ import threading
 from datetime import datetime, timezone
 
 import gradio as gr
-import torch
-from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
 # ── Config ─────────────────────────────────────────────────────────────────
 CHOKRI_TOKEN      = "lus_Latn"
@@ -51,17 +49,20 @@ if USE_SUPABASE:
         print("supabase package not found — using CSV fallback.")
 
 # ── Load model (background thread so server starts immediately) ────────────
-device = torch.device(
-    "cuda" if torch.cuda.is_available()
-    else "mps" if torch.backends.mps.is_available()
-    else "cpu"
-)
-tokenizer   = None
-model       = None
+device       = "cpu"  # resolved in background thread; always cpu on HF free tier
+tokenizer    = None
+model        = None
 _model_ready = threading.Event()
 
 def _load_model():
-    global tokenizer, model
+    global tokenizer, model, device
+    import torch                                        # lazy — avoids ~10 s import at startup
+    from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+    device = (
+        "cuda" if torch.cuda.is_available()
+        else "mps" if torch.backends.mps.is_available()
+        else "cpu"
+    )
     print(f"Loading model from: {MODEL_PATH}")
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
     model     = AutoModelForSeq2SeqLM.from_pretrained(MODEL_PATH).to(device)
@@ -83,6 +84,7 @@ if not USE_SUPABASE and not os.path.exists(CONTRIB_CSV):
 def _translate(text: str, src_token: str, tgt_token: str, beams: int) -> str:
     if not _model_ready.is_set():
         return "⏳ Model is loading, please wait a moment and try again..."
+    import torch  # cached in sys.modules after background thread imports it
     text = text.strip()
     if not text:
         return ""
