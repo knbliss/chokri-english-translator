@@ -20,14 +20,14 @@ import torch
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
 # ── Config ─────────────────────────────────────────────────────────────────
-CHOKRI_TOKEN      = "zho_Hant"
+CHOKRI_TOKEN      = "lus_Latn"
 ENGLISH_TOKEN     = "eng_Latn"
 MAX_LEN           = 128
 MASTER_CSV        = "chokri_english_MASTER.csv"
 CONTRIB_CSV       = "user_contributions.csv"
 REVIEWER_PASSWORD = os.getenv("REVIEWER_PASSWORD", "change-me")
 
-HF_MODEL_ID = os.getenv("HF_MODEL_ID", "")
+HF_MODEL_ID = os.getenv("HF_MODEL_ID", "knbliss/chokri-nllb-finetuned")
 MODEL_PATH  = (
     "model_best"
     if os.path.isdir("model_best")
@@ -76,7 +76,7 @@ def _translate(text: str, src_token: str, tgt_token: str, beams: int) -> str:
         return ""
     tokenizer.src_lang = src_token
     tgt_id = tokenizer.convert_tokens_to_ids(tgt_token)
-    inputs = tokenizer(text, max_length=MAX_LEN, truncation=True, return_tensors="pt").to(device)
+    inputs = tokenizer(text, truncation=True, return_tensors="pt").to(device)
     with torch.no_grad():
         out = model.generate(
             **inputs,
@@ -265,56 +265,52 @@ def download_verified():
 # ── UI ─────────────────────────────────────────────────────────────────────
 _backend = "Supabase" if USE_SUPABASE else "Local CSV"
 
-with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as demo:
+with gr.Blocks(title="Chokri ↔ English Translator") as demo:
 
     gr.Markdown("# Chokri ↔ English Translator")
     gr.Markdown(
         f"Model: `{MODEL_PATH}` &nbsp;|&nbsp; Device: `{device}` &nbsp;|&nbsp; "
         f"Backend: `{_backend}`"
     )
+    gr.Markdown(
+        "> ⚠️ **Early-stage prototype.** Translations are based on an unofficial dialect "
+        "version of Chokri and should **not** be used as a reference for correct Chokri "
+        "spelling, grammar, or translation. We are working with the "
+        "**Chokri Chakhesang Literary Board (CCLB)** to adopt the officially accepted "
+        "Chokri standard in a future version."
+    )
 
     # ── Tab 1: Translate ───────────────────────────────────────────────────
     with gr.Tab("Translate"):
+        gr.Markdown(
+            "_English → Chokri translation is coming in a future version. "
+            "Currently supported: Chokri → English._"
+        )
         with gr.Row():
-            direction = gr.Radio(
-                ["Chokri → English", "English → Chokri"],
-                value="Chokri → English", label="Direction",
-            )
             beams = gr.Slider(1, 8, value=4, step=1,
                               label="Beam width (higher = more accurate, slower)")
         with gr.Row():
             with gr.Column():
                 src_box = gr.Textbox(label="Chokri (source)",
                                      placeholder="Enter Chokri text here…", lines=5)
-                translate_btn = gr.Button("Translate", variant="primary")
+                translate_btn = gr.Button("Translate → English", variant="primary")
             with gr.Column():
                 tgt_box = gr.Textbox(label="English (translation)", lines=5,
                                      interactive=False)
 
-        def _update_labels(dir_):
-            if dir_ == "Chokri → English":
-                return gr.update(label="Chokri (source)"), gr.update(label="English (translation)")
-            return gr.update(label="English (source)"), gr.update(label="Chokri (translation)")
-
-        direction.change(fn=_update_labels, inputs=direction, outputs=[src_box, tgt_box])
-
-        def _run_translation(text, dir_, b):
-            return chokri_to_english(text, b) if dir_ == "Chokri → English" else english_to_chokri(text, b)
-
-        translate_btn.click(fn=_run_translation, inputs=[src_box, direction, beams], outputs=tgt_box)
-        src_box.submit(fn=_run_translation, inputs=[src_box, direction, beams], outputs=tgt_box)
+        translate_btn.click(fn=lambda text, b: chokri_to_english(text, b),
+                            inputs=[src_box, beams], outputs=tgt_box)
+        src_box.submit(fn=lambda text, b: chokri_to_english(text, b),
+                       inputs=[src_box, beams], outputs=tgt_box)
 
         gr.Examples(
             label="Example sentences",
             examples=[
-                ["Abraham nu David, David nuo Jisu Khrista shühye lüsida;", "Chokri → English", 4],
-                ["í lɘ̄vā tì-vá", "Chokri → English", 4],
-                ["ʧɛ̄kʰa̋ kʰa̋-tɛ̄", "Chokri → English", 4],
-                ["Close the door.", "English → Chokri", 4],
-                ["I will eat food.", "English → Chokri", 4],
-                ["Good people go to heaven.", "English → Chokri", 4],
+                ["Abraham nu David, David nuo Jisu Khrista shühye lüsida;", 4],
+                ["í lɘ̄vā tì-vá", 4],
+                ["ʧɛ̄kʰa̋ kʰa̋-tɛ̄", 4],
             ],
-            inputs=[src_box, direction, beams],
+            inputs=[src_box, beams],
         )
 
     # ── Tab 2: Correct a translation ──────────────────────────────────────
@@ -452,4 +448,4 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
         )
 
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860, share=False)
+    demo.launch(server_name="0.0.0.0", server_port=7860, share=False, theme=gr.themes.Soft(), ssr_mode=False)
