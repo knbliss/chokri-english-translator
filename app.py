@@ -1,4 +1,3 @@
-import spaces  # registers app with HF Spaces infrastructure
 """
 Chokri ↔ English Translation Interface
 Phase 2: Supabase backend + reviewer mode
@@ -14,6 +13,7 @@ Run locally: python 5_app.py  →  http://localhost:7860
 """
 import csv
 import os
+import threading
 from datetime import datetime, timezone
 
 import gradio as gr
@@ -50,17 +50,26 @@ if USE_SUPABASE:
         USE_SUPABASE = False
         print("supabase package not found — using CSV fallback.")
 
-# ── Load model ─────────────────────────────────────────────────────────────
-print(f"Loading model from: {MODEL_PATH}")
+# ── Load model (background thread so server starts immediately) ────────────
 device = torch.device(
     "cuda" if torch.cuda.is_available()
     else "mps" if torch.backends.mps.is_available()
     else "cpu"
 )
-tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
-model     = AutoModelForSeq2SeqLM.from_pretrained(MODEL_PATH).to(device)
-model.eval()
-print(f"Model ready on {device}.")
+tokenizer   = None
+model       = None
+_model_ready = threading.Event()
+
+def _load_model():
+    global tokenizer, model
+    print(f"Loading model from: {MODEL_PATH}")
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+    model     = AutoModelForSeq2SeqLM.from_pretrained(MODEL_PATH).to(device)
+    model.eval()
+    _model_ready.set()
+    print(f"Model ready on {device}.")
+
+threading.Thread(target=_load_model, daemon=True).start()
 
 # ── CSV fallback: ensure file + header exist ───────────────────────────────
 CSV_FIELDS = ["id", "chokri", "english", "type", "note",
@@ -72,6 +81,8 @@ if not USE_SUPABASE and not os.path.exists(CONTRIB_CSV):
 
 # ── Translation ────────────────────────────────────────────────────────────
 def _translate(text: str, src_token: str, tgt_token: str, beams: int) -> str:
+    if not _model_ready.is_set():
+        return "⏳ Model is loading, please wait a moment and try again..."
     text = text.strip()
     if not text:
         return ""
