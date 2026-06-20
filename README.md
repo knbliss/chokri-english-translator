@@ -1,3 +1,14 @@
+---
+title: Chokri English Translator
+emoji: 🌏
+colorFrom: blue
+colorTo: green
+sdk: gradio
+sdk_version: "5.0.0"
+app_file: 5_app.py
+pinned: false
+---
+
 # Chokri–English Neural Machine Translation
 
 The first open-source machine translation system for **Chokri**, a Tibeto-Burman
