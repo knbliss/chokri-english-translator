@@ -3,4 +3,4 @@ transformers>=4.40
 sentencepiece>=0.1.99
 gradio>=4.0
 supabase>=2.0
-pyaudioop
+audioop-lts
