@@ -1,3 +1,4 @@
+import spaces  # registers app with HF Spaces infrastructure
 """
 Chokri ↔ English Translation Interface
 Phase 2: Supabase backend + reviewer mode
