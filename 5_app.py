@@ -265,7 +265,7 @@ def download_verified():
 # ── UI ─────────────────────────────────────────────────────────────────────
 _backend = "Supabase" if USE_SUPABASE else "Local CSV"
 
-with gr.Blocks(title="Chokri ↔ English Translator") as demo:
+with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as demo:
 
     gr.Markdown("# Chokri ↔ English Translator")
     gr.Markdown(
@@ -448,4 +448,4 @@ with gr.Blocks(title="Chokri ↔ English Translator") as demo:
         )
 
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860, share=False, theme=gr.themes.Soft(), ssr_mode=False)
+    demo.launch(server_name="0.0.0.0", server_port=7860, share=False, ssr_mode=False)
