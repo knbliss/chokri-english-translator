@@ -14,7 +14,7 @@ pinned: false
 The first open-source machine translation system for **Chokri**, a Tibeto-Burman
 language spoken by ~50,000 people in Phek district, Nagaland, northeast India.
 
-**Live demo:** [huggingface.co/spaces/knbliss/chokri-english-translator](https://huggingface.co/spaces/knbliss/chokri-english-translator)
+**Live demo:** [knbliss-chokri-english-translator.hf.space](https://knbliss-chokri-english-translator.hf.space)
 
 > **Note:** This is an early-stage prototype. Translations are based on an unofficial dialect version of Chokri and should not be treated as linguistically accurate. We are working with the CCLB to adopt the officially accepted Chokri standard.
 
