@@ -335,6 +335,8 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
                     ["Apo di thi ta va?", 4],
                 ],
                 inputs=[src_box, beams],
+                outputs=[tgt_box],
+                fn=lambda text, b: "",
             )
 
         # ── Tab 2: Correct a translation ──────────────────────────────────
