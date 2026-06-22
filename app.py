@@ -406,7 +406,10 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
 
         # — Review panel (hidden until logged in) —
         with gr.Column(visible=False) as review_col:
-            gr.Markdown("### Review Pending Contributions")
+            with gr.Row():
+                gr.Markdown("### Review Pending Contributions")
+                logout_btn = gr.Button("Logout", size="sm")
+
             gr.Markdown(
                 "Edit Chokri/English if needed, add your name and any notes, "
                 "then **Approve** or **Reject**. The next pending item loads automatically."
@@ -453,6 +456,14 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
         login_btn.click(
             fn=_do_login,
             inputs=[pwd_input, _logged_in],
+            outputs=[_logged_in, login_col, review_col, download_col, login_msg],
+        )
+
+        def _do_logout():
+            return False, gr.update(visible=True, value=""), gr.update(visible=False), gr.update(visible=False), ""
+
+        logout_btn.click(
+            fn=_do_logout,
             outputs=[_logged_in, login_col, review_col, download_col, login_msg],
         )
 

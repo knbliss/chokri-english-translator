@@ -25,6 +25,7 @@ MAX_LEN           = 128
 MASTER_CSV        = "chokri_english_MASTER.csv"
 CONTRIB_CSV       = "user_contributions.csv"
 REVIEWER_PASSWORD = os.getenv("REVIEWER_PASSWORD", "change-me")
+ADMIN_PASSWORD    = os.getenv("ADMIN_PASSWORD", "admin-change-me")
 
 HF_MODEL_ID = os.getenv("HF_MODEL_ID", "knbliss/chokri-nllb-finetuned")
 MODEL_PATH  = (
@@ -247,14 +248,19 @@ def _set_status(item_id, new_status, reviewer_name, reviewer_notes,
 def approve_item(item_id, chokri, english, reviewer_name, reviewer_notes):
     if not item_id:
         return ("No item loaded.",) + _item_to_outputs(None)
-    _set_status(item_id, "verified", reviewer_name, reviewer_notes, chokri, english)
+    missing = [f for f, v in [("Chokri", chokri), ("English", english), ("Your name", reviewer_name)] if not str(v).strip()]
+    if missing:
+        return (f"⚠️ Please fill in: {', '.join(missing)}.",) + (gr.update(),) * 6
+    _set_status(item_id, "verified", reviewer_name.strip(), reviewer_notes, chokri.strip(), english.strip())
     msg = f"Approved! {get_stats()}"
     return (msg,) + _item_to_outputs(_next_pending())
 
 def reject_item(item_id, reviewer_name, reviewer_notes):
     if not item_id:
         return ("No item loaded.",) + _item_to_outputs(None)
-    _set_status(item_id, "rejected", reviewer_name, reviewer_notes)
+    if not str(reviewer_name).strip():
+        return ("⚠️ Please fill in: Your name.",) + (gr.update(),) * 6
+    _set_status(item_id, "rejected", reviewer_name.strip(), reviewer_notes)
     msg = f"Rejected. {get_stats()}"
     return (msg,) + _item_to_outputs(_next_pending())
 
@@ -400,7 +406,10 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
 
         # — Review panel (hidden until logged in) —
         with gr.Column(visible=False) as review_col:
-            gr.Markdown("### Review Pending Contributions")
+            with gr.Row():
+                gr.Markdown("### Review Pending Contributions")
+                logout_btn = gr.Button("Logout", size="sm")
+
             gr.Markdown(
                 "Edit Chokri/English if needed, add your name and any notes, "
                 "then **Approve** or **Reject**. The next pending item loads automatically."
@@ -426,25 +435,36 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
 
             action_msg = gr.Textbox(label="Result", interactive=False)
 
-            gr.Markdown("---")
-            gr.Markdown("**Download verified pairs** as CSV for local retraining:")
-            download_btn  = gr.Button("Download verified pairs")
-            verified_file = gr.File(label="Download", interactive=False)
-            download_btn.click(fn=download_verified, outputs=verified_file)
+            with gr.Column(visible=False) as download_col:
+                gr.Markdown("---")
+                gr.Markdown("**Download verified pairs** as CSV for local retraining:")
+                download_btn  = gr.Button("Download verified pairs")
+                verified_file = gr.File(label="Download", interactive=False)
+                download_btn.click(fn=download_verified, outputs=verified_file)
 
         # — Wiring —
         _REVIEW_OUTPUTS = [rev_chokri, rev_english, rev_type, rev_note,
                            review_status, _current_id]
 
         def _do_login(password, state):
+            if password == ADMIN_PASSWORD:
+                return True, gr.update(visible=False), gr.update(visible=True), gr.update(visible=True), "Logged in as admin."
             if password == REVIEWER_PASSWORD:
-                return True, gr.update(visible=False), gr.update(visible=True), "Logged in."
-            return False, gr.update(visible=True), gr.update(visible=False), "Incorrect password."
+                return True, gr.update(visible=False), gr.update(visible=True), gr.update(visible=False), "Logged in."
+            return False, gr.update(visible=True), gr.update(visible=False), gr.update(visible=False), "Incorrect password."
 
         login_btn.click(
             fn=_do_login,
             inputs=[pwd_input, _logged_in],
-            outputs=[_logged_in, login_col, review_col, login_msg],
+            outputs=[_logged_in, login_col, review_col, download_col, login_msg],
+        )
+
+        def _do_logout():
+            return False, gr.update(visible=True, value=""), gr.update(visible=False), gr.update(visible=False), ""
+
+        logout_btn.click(
+            fn=_do_logout,
+            outputs=[_logged_in, login_col, review_col, download_col, login_msg],
         )
 
         load_btn.click(fn=load_review_item, outputs=_REVIEW_OUTPUTS)
