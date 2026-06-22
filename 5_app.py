@@ -300,185 +300,196 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
         "Chokri standard in a future version."
     )
 
-    # ── Tab 1: Translate ───────────────────────────────────────────────────
-    with gr.Tab("Translate"):
-        gr.Markdown(
-            "_English → Chokri translation is coming in a future version. "
-            "Currently supported: Chokri → English._"
-        )
-        with gr.Row():
-            beams = gr.Slider(1, 8, value=4, step=1,
-                              label="Beam width (higher = more accurate, slower)")
-        with gr.Row():
-            with gr.Column():
-                src_box = gr.Textbox(label="Chokri (source)",
-                                     placeholder="Enter Chokri text here…", lines=5)
-                translate_btn = gr.Button("Translate → English", variant="primary")
-            with gr.Column():
-                tgt_box = gr.Textbox(label="English (translation)", lines=5,
-                                     interactive=False)
+    with gr.Tabs() as tabs:
 
-        translate_btn.click(fn=lambda text, b: chokri_to_english(text, b),
-                            inputs=[src_box, beams], outputs=tgt_box)
-        src_box.submit(fn=lambda text, b: chokri_to_english(text, b),
-                       inputs=[src_box, beams], outputs=tgt_box)
-
-        gr.Examples(
-            label="Example sentences",
-            examples=[
-                ["Abraham nu David, David nuo Jisu Khrista shühye lüsida;", 4],
-                ["í lɘ̄vā tì-vá", 4],
-                ["ʧɛ̄kʰa̋ kʰa̋-tɛ̄", 4],
-            ],
-            inputs=[src_box, beams],
-        )
-
-    # ── Tab 2: Correct a translation ──────────────────────────────────────
-    with gr.Tab("Correct a Translation"):
-        gr.Markdown(
-            "If the model produced a wrong translation, paste it here and provide the "
-            "correct version. Corrections go to reviewers before entering the training set."
-        )
-        with gr.Row():
-            with gr.Column():
-                corr_src = gr.Textbox(label="Original Chokri text", lines=3)
-                corr_mt  = gr.Textbox(label="Model's translation (wrong)", lines=3)
-            with gr.Column():
-                corr_fix  = gr.Textbox(label="Your corrected translation", lines=3)
-                corr_note = gr.Textbox(label="Optional note (e.g. 'wrong tense')", lines=1)
-        with gr.Row():
-            corr_dir = gr.Radio(
-                ["Chokri → English", "English → Chokri"],
-                value="Chokri → English", label="Direction",
-            )
-        corr_btn    = gr.Button("Submit Correction", variant="primary")
-        corr_status = gr.Textbox(label="Status", interactive=False)
-        corr_btn.click(
-            fn=submit_correction,
-            inputs=[corr_src, corr_mt, corr_fix, corr_dir, corr_note],
-            outputs=corr_status,
-        )
-
-    # ── Tab 3: Add new pair ────────────────────────────────────────────────
-    with gr.Tab("Add New Pair"):
-        gr.Markdown(
-            "Know a Chokri sentence and its English translation? Add it here — "
-            "a reviewer will verify it before it enters the training corpus."
-        )
-        with gr.Row():
-            with gr.Column():
-                new_chokri  = gr.Textbox(label="Chokri sentence", lines=3)
-            with gr.Column():
-                new_english = gr.Textbox(label="English translation", lines=3)
-        new_note   = gr.Textbox(label="Optional note (source, context, dialect…)", lines=1)
-        add_btn    = gr.Button("Add Pair", variant="primary")
-        add_status = gr.Textbox(label="Status", interactive=False)
-        add_btn.click(fn=submit_new_pair,
-                      inputs=[new_chokri, new_english, new_note], outputs=add_status)
-
-    # ── Tab 4: Contributions ──────────────────────────────────────────────
-    with gr.Tab("Contributions"):
-        stats_box   = gr.Textbox(label="Contribution stats", interactive=False)
-        refresh_btn = gr.Button("Refresh")
-        contrib_tbl = gr.Dataframe(
-            headers=["Chokri", "English", "Type", "Note", "Submitted", "Status"],
-            datatype=["str"] * 6, interactive=False, wrap=True,
-        )
-
-        def _refresh():
-            return get_stats(), load_recent()
-
-        refresh_btn.click(fn=_refresh, outputs=[stats_box, contrib_tbl])
-        demo.load(fn=_refresh, outputs=[stats_box, contrib_tbl])
-
-    # ── Tab 5: Review (password-gated) ────────────────────────────────────
-    with gr.Tab("Review"):
-        _logged_in  = gr.State(False)
-        _current_id = gr.Textbox(visible=False)   # holds UUID / timestamp of current item
-
-        # — Login panel —
-        with gr.Column(visible=True) as login_col:
-            gr.Markdown("### Reviewer Login")
-            gr.Markdown("This tab is for appointed reviewers only.")
-            pwd_input = gr.Textbox(label="Password", type="password", lines=1)
-            login_btn = gr.Button("Login")
-            login_msg = gr.Textbox(label="", interactive=False)
-
-        # — Review panel (hidden until logged in) —
-        with gr.Column(visible=False) as review_col:
-            with gr.Row():
-                gr.Markdown("### Review Pending Contributions")
-                logout_btn = gr.Button("Logout", size="sm")
-
+        # ── Tab 1: Translate ──────────────────────────────────────────────
+        with gr.Tab("Translate", id=0):
             gr.Markdown(
-                "Edit Chokri/English if needed, add your name and any notes, "
-                "then **Approve** or **Reject**. The next pending item loads automatically."
+                "_English → Chokri translation is coming in a future version. "
+                "Currently supported: Chokri → English._"
             )
-            review_status = gr.Textbox(label="Current item", interactive=False)
-            load_btn      = gr.Button("Load next pending item")
-
+            with gr.Row():
+                beams = gr.Slider(1, 8, value=4, step=1,
+                                  label="Beam width (higher = more accurate, slower)")
             with gr.Row():
                 with gr.Column():
-                    rev_chokri  = gr.Textbox(label="Chokri", lines=3)
+                    src_box = gr.Textbox(label="Chokri (source)",
+                                         placeholder="Enter Chokri text here…", lines=5)
+                    translate_btn = gr.Button("Translate → English", variant="primary")
                 with gr.Column():
-                    rev_english = gr.Textbox(label="English", lines=3)
+                    tgt_box = gr.Textbox(label="English (translation)", lines=5,
+                                         interactive=False)
+                    correct_btn = gr.Button("✏️ This translation is wrong — correct it",
+                                            variant="secondary")
+
+            translate_btn.click(fn=lambda text, b: chokri_to_english(text, b),
+                                inputs=[src_box, beams], outputs=tgt_box)
+            src_box.submit(fn=lambda text, b: chokri_to_english(text, b),
+                           inputs=[src_box, beams], outputs=tgt_box)
+
+            gr.Examples(
+                label="Example sentences",
+                examples=[
+                    ["Abraham nu David, David nuo Jisu Khrista shühye lüsida;", 4],
+                    ["í lɘ̄vā tì-vá", 4],
+                    ["ʧɛ̄kʰa̋ kʰa̋-tɛ̄", 4],
+                ],
+                inputs=[src_box, beams],
+            )
+
+        # ── Tab 2: Correct a translation ──────────────────────────────────
+        with gr.Tab("Correct a Translation", id=1):
+            gr.Markdown(
+                "If the model produced a wrong translation, paste it here and provide the "
+                "correct version. Corrections go to reviewers before entering the training set."
+            )
             with gr.Row():
-                rev_type = gr.Textbox(label="Type", interactive=False)
-                rev_note = gr.Textbox(label="Submitter note", interactive=False)
-
-            reviewer_name  = gr.Textbox(label="Your name", lines=1)
-            reviewer_notes = gr.Textbox(label="Reviewer notes (optional)", lines=1)
-
+                with gr.Column():
+                    corr_src = gr.Textbox(label="Original Chokri text", lines=3)
+                    corr_mt  = gr.Textbox(label="Model's translation (wrong)", lines=3)
+                with gr.Column():
+                    corr_fix  = gr.Textbox(label="Your corrected translation", lines=3)
+                    corr_note = gr.Textbox(label="Optional note (e.g. 'wrong tense')", lines=1)
             with gr.Row():
-                approve_btn = gr.Button("Approve", variant="primary")
-                reject_btn  = gr.Button("Reject",  variant="stop")
+                corr_dir = gr.Radio(
+                    ["Chokri → English", "English → Chokri"],
+                    value="Chokri → English", label="Direction",
+                )
+            corr_btn    = gr.Button("Submit Correction", variant="primary")
+            corr_status = gr.Textbox(label="Status", interactive=False)
+            corr_btn.click(
+                fn=submit_correction,
+                inputs=[corr_src, corr_mt, corr_fix, corr_dir, corr_note],
+                outputs=corr_status,
+            )
 
-            action_msg = gr.Textbox(label="Result", interactive=False)
+        # ── Tab 3: Add new pair ───────────────────────────────────────────
+        with gr.Tab("Add New Pair", id=2):
+            gr.Markdown(
+                "Know a Chokri sentence and its English translation? Add it here — "
+                "a reviewer will verify it before it enters the training corpus."
+            )
+            with gr.Row():
+                with gr.Column():
+                    new_chokri  = gr.Textbox(label="Chokri sentence", lines=3)
+                with gr.Column():
+                    new_english = gr.Textbox(label="English translation", lines=3)
+            new_note   = gr.Textbox(label="Optional note (source, context, dialect…)", lines=1)
+            add_btn    = gr.Button("Add Pair", variant="primary")
+            add_status = gr.Textbox(label="Status", interactive=False)
+            add_btn.click(fn=submit_new_pair,
+                          inputs=[new_chokri, new_english, new_note], outputs=add_status)
 
-            with gr.Column(visible=False) as download_col:
-                gr.Markdown("---")
-                gr.Markdown("**Download verified pairs** as CSV for local retraining:")
-                download_btn  = gr.Button("Download verified pairs")
-                verified_file = gr.File(label="Download", interactive=False)
-                download_btn.click(fn=download_verified, outputs=verified_file)
+        # ── Tab 4: Contributions ──────────────────────────────────────────
+        with gr.Tab("Contributions", id=3):
+            stats_box   = gr.Textbox(label="Contribution stats", interactive=False)
+            refresh_btn = gr.Button("Refresh")
+            contrib_tbl = gr.Dataframe(
+                headers=["Chokri", "English", "Type", "Note", "Submitted", "Status"],
+                datatype=["str"] * 6, interactive=False, wrap=True,
+            )
 
-        # — Wiring —
-        _REVIEW_OUTPUTS = [rev_chokri, rev_english, rev_type, rev_note,
-                           review_status, _current_id]
+            def _refresh():
+                return get_stats(), load_recent()
 
-        def _do_login(password, state):
-            if password == ADMIN_PASSWORD:
-                return True, gr.update(visible=False), gr.update(visible=True), gr.update(visible=True), "Logged in as admin."
-            if password == REVIEWER_PASSWORD:
-                return True, gr.update(visible=False), gr.update(visible=True), gr.update(visible=False), "Logged in."
-            return False, gr.update(visible=True), gr.update(visible=False), gr.update(visible=False), "Incorrect password."
+            refresh_btn.click(fn=_refresh, outputs=[stats_box, contrib_tbl])
+            demo.load(fn=_refresh, outputs=[stats_box, contrib_tbl])
 
-        login_btn.click(
-            fn=_do_login,
-            inputs=[pwd_input, _logged_in],
-            outputs=[_logged_in, login_col, review_col, download_col, login_msg],
-        )
+        # ── Tab 5: Review (password-gated) ───────────────────────────────
+        with gr.Tab("Review", id=4):
+            _logged_in  = gr.State(False)
+            _current_id = gr.Textbox(visible=False)
 
-        def _do_logout():
-            return False, gr.update(visible=True, value=""), gr.update(visible=False), gr.update(visible=False), ""
+            # — Login panel —
+            with gr.Column(visible=True) as login_col:
+                gr.Markdown("### Reviewer Login")
+                gr.Markdown("This tab is for appointed reviewers only.")
+                pwd_input = gr.Textbox(label="Password", type="password", lines=1)
+                login_btn = gr.Button("Login")
+                login_msg = gr.Textbox(label="", interactive=False)
 
-        logout_btn.click(
-            fn=_do_logout,
-            outputs=[_logged_in, login_col, review_col, download_col, login_msg],
-        )
+            # — Review panel (hidden until logged in) —
+            with gr.Column(visible=False) as review_col:
+                with gr.Row():
+                    gr.Markdown("### Review Pending Contributions")
+                    logout_btn = gr.Button("Logout", size="sm")
 
-        load_btn.click(fn=load_review_item, outputs=_REVIEW_OUTPUTS)
+                gr.Markdown(
+                    "Edit Chokri/English if needed, add your name and any notes, "
+                    "then **Approve** or **Reject**. The next pending item loads automatically."
+                )
+                review_status = gr.Textbox(label="Current item", interactive=False)
+                load_btn      = gr.Button("Load next pending item")
 
-        approve_btn.click(
-            fn=approve_item,
-            inputs=[_current_id, rev_chokri, rev_english, reviewer_name, reviewer_notes],
-            outputs=[action_msg] + _REVIEW_OUTPUTS,
-        )
+                with gr.Row():
+                    with gr.Column():
+                        rev_chokri  = gr.Textbox(label="Chokri", lines=3)
+                    with gr.Column():
+                        rev_english = gr.Textbox(label="English", lines=3)
+                with gr.Row():
+                    rev_type = gr.Textbox(label="Type", interactive=False)
+                    rev_note = gr.Textbox(label="Submitter note", interactive=False)
 
-        reject_btn.click(
-            fn=reject_item,
-            inputs=[_current_id, reviewer_name, reviewer_notes],
-            outputs=[action_msg] + _REVIEW_OUTPUTS,
-        )
+                reviewer_name  = gr.Textbox(label="Your name", lines=1)
+                reviewer_notes = gr.Textbox(label="Reviewer notes (optional)", lines=1)
+
+                with gr.Row():
+                    approve_btn = gr.Button("Approve", variant="primary")
+                    reject_btn  = gr.Button("Reject",  variant="stop")
+
+                action_msg = gr.Textbox(label="Result", interactive=False)
+
+                with gr.Column(visible=False) as download_col:
+                    gr.Markdown("---")
+                    gr.Markdown("**Download verified pairs** as CSV for local retraining:")
+                    download_btn  = gr.Button("Download verified pairs")
+                    verified_file = gr.File(label="Download", interactive=False)
+                    download_btn.click(fn=download_verified, outputs=verified_file)
+
+            # — Wiring —
+            _REVIEW_OUTPUTS = [rev_chokri, rev_english, rev_type, rev_note,
+                               review_status, _current_id]
+
+            def _do_login(password, state):
+                if password == ADMIN_PASSWORD:
+                    return True, gr.update(visible=False), gr.update(visible=True), gr.update(visible=True), "Logged in as admin."
+                if password == REVIEWER_PASSWORD:
+                    return True, gr.update(visible=False), gr.update(visible=True), gr.update(visible=False), "Logged in."
+                return False, gr.update(visible=True), gr.update(visible=False), gr.update(visible=False), "Incorrect password."
+
+            login_btn.click(
+                fn=_do_login,
+                inputs=[pwd_input, _logged_in],
+                outputs=[_logged_in, login_col, review_col, download_col, login_msg],
+            )
+
+            def _do_logout():
+                return False, gr.update(visible=True, value=""), gr.update(visible=False), gr.update(visible=False), ""
+
+            logout_btn.click(
+                fn=_do_logout,
+                outputs=[_logged_in, login_col, review_col, download_col, login_msg],
+            )
+
+            load_btn.click(fn=load_review_item, outputs=_REVIEW_OUTPUTS)
+
+            approve_btn.click(
+                fn=approve_item,
+                inputs=[_current_id, rev_chokri, rev_english, reviewer_name, reviewer_notes],
+                outputs=[action_msg] + _REVIEW_OUTPUTS,
+            )
+
+            reject_btn.click(
+                fn=reject_item,
+                inputs=[_current_id, reviewer_name, reviewer_notes],
+                outputs=[action_msg] + _REVIEW_OUTPUTS,
+            )
+
+    # ── Cross-tab wiring ──────────────────────────────────────────────────────
+    correct_btn.click(
+        fn=lambda src, mt: (src, mt, gr.update(selected=1)),
+        inputs=[src_box, tgt_box],
+        outputs=[corr_src, corr_mt, tabs],
+    )
 
 demo.launch(ssr_mode=False)
