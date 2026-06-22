@@ -330,8 +330,9 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
             gr.Examples(
                 label="Example sentences",
                 examples=[
-                    ["Veku di pô thi ba na?", 4],
-                    ["I a krü mu a kümüthami rhoto", 4],
+                    ["Uko thajü popü kemeta jüko thitso kevasa, süyo pü pükiri, püvo mhakhre pülü khriüva.", 4],
+                    ["Kümülomi kümha mode mhakösemi thide mütse phrü de tayi.", 4],
+                    ["Apo di thi ta va?", 4],
                 ],
                 inputs=[src_box, beams],
             )
