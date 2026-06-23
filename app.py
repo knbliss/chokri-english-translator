@@ -425,7 +425,6 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
 
             refresh_btn.click(fn=_refresh, outputs=[stats_box, contrib_tbl])
             demo.load(fn=_refresh, outputs=[stats_box, contrib_tbl])
-            demo.load(fn=get_translation_stats, outputs=[usage_stats])
 
         # ── Tab 5: Review (password-gated) ───────────────────────────────
         with gr.Tab("Review", id=4):
@@ -523,5 +522,6 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
         inputs=[src_box, tgt_box],
         outputs=[corr_src, corr_mt, tabs],
     )
+    demo.load(fn=get_translation_stats, outputs=[usage_stats])
 
 demo.launch(ssr_mode=False)
