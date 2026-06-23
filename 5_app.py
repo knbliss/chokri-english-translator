@@ -103,6 +103,17 @@ def _translate(text: str, src_token: str, tgt_token: str, beams: int) -> str:
         )
     return tokenizer.decode(out[0], skip_special_tokens=True)
 
+def get_translation_stats() -> str:
+    if not USE_SUPABASE:
+        return ""
+    try:
+        total = sb.table("translation_logs").select("id", count="exact").execute().count
+        today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+        today = sb.table("translation_logs").select("id", count="exact").gte("created_at", today_start).execute().count
+        return f"🌏 **{total}** translations run total &nbsp;|&nbsp; **{today}** today"
+    except Exception:
+        return ""
+
 def _log_translation(direction: str, char_count: int):
     if not USE_SUPABASE:
         return
@@ -355,6 +366,7 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
                 outputs=[tgt_box],
                 fn=lambda text, b: "",
             )
+            usage_stats = gr.Markdown(value="")
 
         # ── Tab 2: Correct a translation ──────────────────────────────────
         with gr.Tab("Correct a Translation", id=1):
@@ -413,6 +425,7 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
 
             refresh_btn.click(fn=_refresh, outputs=[stats_box, contrib_tbl])
             demo.load(fn=_refresh, outputs=[stats_box, contrib_tbl])
+            demo.load(fn=get_translation_stats, outputs=[usage_stats])
 
         # ── Tab 5: Review (password-gated) ───────────────────────────────
         with gr.Tab("Review", id=4):
