@@ -103,11 +103,28 @@ def _translate(text: str, src_token: str, tgt_token: str, beams: int) -> str:
         )
     return tokenizer.decode(out[0], skip_special_tokens=True)
 
+def _log_translation(direction: str, char_count: int):
+    if not USE_SUPABASE:
+        return
+    try:
+        sb.table("translation_logs").insert({
+            "direction": direction,
+            "char_count": char_count,
+        }).execute()
+    except Exception:
+        pass  # never let logging break the translation
+
 def chokri_to_english(text, beams):
-    return _translate(text, CHOKRI_TOKEN, ENGLISH_TOKEN, int(beams))
+    result = _translate(text, CHOKRI_TOKEN, ENGLISH_TOKEN, int(beams))
+    if result and not result.startswith("⏳"):
+        _log_translation("chokri_to_english", len(text.strip()))
+    return result
 
 def english_to_chokri(text, beams):
-    return _translate(text, ENGLISH_TOKEN, CHOKRI_TOKEN, int(beams))
+    result = _translate(text, ENGLISH_TOKEN, CHOKRI_TOKEN, int(beams))
+    if result and not result.startswith("⏳"):
+        _log_translation("english_to_chokri", len(text.strip()))
+    return result
 
 # ── Contribution helpers ───────────────────────────────────────────────────
 def _now_iso():
