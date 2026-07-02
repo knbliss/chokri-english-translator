@@ -22,7 +22,7 @@ language spoken by ~50,000 people in Phek district, Nagaland, northeast India.
 
 ## Why this matters
 
-My children grew up in Australia and understand only a little Chokri — my mother tongue. They struggle to speak with their grandparents and the older people in our village who do not speak English. This gap is common among Chakhesang families living outside Nagaland, where passing the language on to the next generation is a real challenge.
+My children grew up in Australia and understand only a little Chokri - my mother tongue. They struggle to speak with their grandparents and the older people in our village who do not speak English. This gap is common among Chakhesang families living outside Nagaland, where passing the language on to the next generation is a real challenge.
 
 This project is one small step toward bridging that gap — making Chokri more accessible across distance and generations.
 
@@ -125,7 +125,7 @@ so you can run it without the fine-tuned weights.
 | Role | Names |
 |------|-------|
 | Project lead | Kuyi |
-| Reviewers | _to be added_ |
+| Core team | Zokusheyi Rhakho, Punesayi Swuro |
 | Data sources | Chokri New Testament (Bible Society of India), Bielenberg (2001) |
 
 Community contributors are listed in the release notes for each dataset version.
