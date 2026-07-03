@@ -24,6 +24,14 @@ data/
 supabase_setup.sql
 deployment/hf_spaces_README.md
 
+# Local-only folders (organised locally, not for GitHub)
+scripts/
+documents/
+assets/
+data_sources/
+training_runs/
+Book_Images/
+
 # macOS
 .DS_Store
 ~$*
