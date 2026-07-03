@@ -417,8 +417,8 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
                 with gr.Column():
                     new_english = gr.Textbox(label="English translation", lines=3)
             with gr.Row():
-                new_region  = gr.Textbox(label="Region (optional — e.g. Eastern Chokri, Western Chokri)", lines=1)
-                new_village = gr.Textbox(label="Village (optional — e.g. Chizami, Losami)", lines=1)
+                new_region  = gr.Textbox(label="Region (optional — e.g. Phek, Chozuba, Ketsapo etc)", lines=1)
+                new_village = gr.Textbox(label="Village (optional — e.g. Chetheba, Lozaphuhu, Ruzhazho)", lines=1)
             new_note   = gr.Textbox(label="Optional note (source, context, dialect…)", lines=1)
             add_btn    = gr.Button("Add Pair", variant="primary")
             add_status = gr.Textbox(label="Status", interactive=False)
