@@ -153,7 +153,8 @@ def _csv_write_rows(rows):
         w.writeheader()
         w.writerows(rows)
 
-def save_contribution(chokri: str, english: str, kind: str, note: str) -> str:
+def save_contribution(chokri: str, english: str, kind: str, note: str,
+                      region: str = "", village: str = "") -> str:
     chokri  = chokri.strip()
     english = english.strip()
     if not chokri or not english:
@@ -162,6 +163,8 @@ def save_contribution(chokri: str, english: str, kind: str, note: str) -> str:
         sb.table("contributions").insert({
             "chokri": chokri, "english": english,
             "type": kind, "note": note.strip(), "status": "pending",
+            "region": region.strip() or None,
+            "village": village.strip() or None,
         }).execute()
         count = sb.table("contributions").select("id", count="exact").execute().count
         return f"Saved! Total contributions: {count}"
@@ -184,8 +187,8 @@ def submit_correction(src, mt, corrected, direction, note):
         english, chokri = src.strip(), corrected.strip()
     return save_contribution(chokri, english, "correction", note)
 
-def submit_new_pair(chokri, english, note):
-    return save_contribution(chokri, english, "new_pair", note)
+def submit_new_pair(chokri, english, note, region, village):
+    return save_contribution(chokri, english, "new_pair", note, region, village)
 
 # ── Stats & table ──────────────────────────────────────────────────────────
 def get_stats() -> str:
@@ -222,7 +225,7 @@ def _next_pending():
         return None
 
 def _item_to_outputs(item):
-    """Convert a contribution dict to the 6 reviewer-panel output values."""
+    """Convert a contribution dict to the 7 reviewer-panel output values."""
     if item is None:
         return (
             gr.update(value="", interactive=False),
@@ -231,6 +234,7 @@ def _item_to_outputs(item):
             "",
             "No pending items.",
             "",
+            False,   # reset CCLB checkbox
         )
     return (
         gr.update(value=item["chokri"], interactive=True),
@@ -239,19 +243,21 @@ def _item_to_outputs(item):
         item.get("note", ""),
         f"Reviewing ID: {item.get('id', item.get('submitted_at', '?'))}",
         item.get("id", item.get("submitted_at", "")),
+        False,   # reset CCLB checkbox for each new item
     )
 
 def load_review_item():
     return _item_to_outputs(_next_pending())
 
 def _set_status(item_id, new_status, reviewer_name, reviewer_notes,
-                new_chokri=None, new_english=None):
+                new_chokri=None, new_english=None, is_cclb_standard=False):
     if USE_SUPABASE:
         update = {
             "status": new_status,
             "reviewed_by": reviewer_name,
             "reviewer_notes": reviewer_notes,
             "reviewed_at": _now_iso(),
+            "is_cclb_standard": bool(is_cclb_standard),
         }
         if new_chokri:
             update["chokri"] = new_chokri
@@ -273,13 +279,14 @@ def _set_status(item_id, new_status, reviewer_name, reviewer_notes,
                 break
         _csv_write_rows(rows)
 
-def approve_item(item_id, chokri, english, reviewer_name, reviewer_notes):
+def approve_item(item_id, chokri, english, reviewer_name, reviewer_notes, is_cclb_standard):
     if not item_id:
         return ("No item loaded.",) + _item_to_outputs(None)
     missing = [f for f, v in [("Chokri", chokri), ("English", english), ("Your name", reviewer_name)] if not str(v).strip()]
     if missing:
-        return (f"⚠️ Please fill in: {', '.join(missing)}.",) + (gr.update(),) * 6
-    _set_status(item_id, "verified", reviewer_name.strip(), reviewer_notes, chokri.strip(), english.strip())
+        return (f"⚠️ Please fill in: {', '.join(missing)}.",) + (gr.update(),) * 7
+    _set_status(item_id, "verified", reviewer_name.strip(), reviewer_notes,
+                chokri.strip(), english.strip(), is_cclb_standard)
     msg = f"Approved! {get_stats()}"
     return (msg,) + _item_to_outputs(_next_pending())
 
@@ -295,7 +302,7 @@ def reject_item(item_id, reviewer_name, reviewer_notes):
 def download_verified():
     if USE_SUPABASE:
         res = sb.table("contributions").select(
-            "chokri,english,type,reviewer_notes"
+            "chokri,english,type,region,village,is_cclb_standard,reviewer_notes"
         ).eq("status", "verified").execute()
         rows = res.data
     else:
@@ -304,8 +311,12 @@ def download_verified():
         return None
     path = "/tmp/chokri_verified_pairs.csv"
     with open(path, "w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=["chokri", "english", "type", "reviewer_notes"],
-                           extrasaction="ignore")
+        w = csv.DictWriter(
+            f,
+            fieldnames=["chokri", "english", "type", "region", "village",
+                        "is_cclb_standard", "reviewer_notes"],
+            extrasaction="ignore",
+        )
         w.writeheader()
         w.writerows(rows)
     return path
@@ -405,11 +416,15 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
                     new_chokri  = gr.Textbox(label="Chokri sentence", lines=3)
                 with gr.Column():
                     new_english = gr.Textbox(label="English translation", lines=3)
+            with gr.Row():
+                new_region  = gr.Textbox(label="Region (optional — e.g. Eastern Chokri, Western Chokri)", lines=1)
+                new_village = gr.Textbox(label="Village (optional — e.g. Chizami, Losami)", lines=1)
             new_note   = gr.Textbox(label="Optional note (source, context, dialect…)", lines=1)
             add_btn    = gr.Button("Add Pair", variant="primary")
             add_status = gr.Textbox(label="Status", interactive=False)
             add_btn.click(fn=submit_new_pair,
-                          inputs=[new_chokri, new_english, new_note], outputs=add_status)
+                          inputs=[new_chokri, new_english, new_note, new_region, new_village],
+                          outputs=add_status)
 
         # ── Tab 4: Contributions ──────────────────────────────────────────
         with gr.Tab("Contributions", id=3):
@@ -463,6 +478,11 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
 
                 reviewer_name  = gr.Textbox(label="Your name", lines=1)
                 reviewer_notes = gr.Textbox(label="Reviewer notes (optional)", lines=1)
+                cclb_checkbox  = gr.Checkbox(
+                    label="✅ Conforms to CCLB standard",
+                    value=False,
+                    info="Only tick this if you are confident this sentence follows the officially accepted CCLB Chokri standard.",
+                )
 
                 with gr.Row():
                     approve_btn = gr.Button("Approve", variant="primary")
@@ -479,7 +499,7 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
 
             # — Wiring —
             _REVIEW_OUTPUTS = [rev_chokri, rev_english, rev_type, rev_note,
-                               review_status, _current_id]
+                               review_status, _current_id, cclb_checkbox]
 
             def _do_login(password, state):
                 if password == ADMIN_PASSWORD:
@@ -506,7 +526,7 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
 
             approve_btn.click(
                 fn=approve_item,
-                inputs=[_current_id, rev_chokri, rev_english, reviewer_name, reviewer_notes],
+                inputs=[_current_id, rev_chokri, rev_english, reviewer_name, reviewer_notes, cclb_checkbox],
                 outputs=[action_msg] + _REVIEW_OUTPUTS,
             )
 
