@@ -224,6 +224,32 @@ def _next_pending():
                 return row
         return None
 
+def load_pending_list():
+    if USE_SUPABASE:
+        res = sb.table("contributions").select("*").eq("status", "pending").order("submitted_at").execute()
+        items = res.data or []
+    else:
+        items = [r for r in _csv_all_rows() if r.get("status", "pending") == "pending"]
+    table_rows = []
+    for i, item in enumerate(items):
+        ck = item["chokri"]
+        en = item.get("english", "") or ""
+        table_rows.append([
+            i + 1,
+            ck[:60] + ("…" if len(ck) > 60 else ""),
+            en[:60] + ("…" if len(en) > 60 else ""),
+            item.get("type", ""),
+            item.get("region", "") or "",
+            item.get("village", "") or "",
+        ])
+    return table_rows, items
+
+def select_pending_item(evt: gr.SelectData, items):
+    row_idx = evt.index[0]
+    if not items or row_idx >= len(items):
+        return _item_to_outputs(None)
+    return _item_to_outputs(items[row_idx])
+
 def _item_to_outputs(item):
     """Convert a contribution dict to the 7 reviewer-panel output values."""
     if item is None:
@@ -460,12 +486,27 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
                     gr.Markdown("### Review Pending Contributions")
                     logout_btn = gr.Button("Logout", size="sm")
 
+                # — Pending items list —
+                gr.Markdown("Click any row below to load it into the review form.")
+                _pending_items = gr.State([])
+                with gr.Row():
+                    refresh_list_btn = gr.Button("🔄 Refresh list", size="sm")
+                pending_tbl = gr.Dataframe(
+                    headers=["#", "Chokri", "English", "Type", "Region", "Village"],
+                    datatype=["number", "str", "str", "str", "str", "str"],
+                    interactive=False,
+                    wrap=True,
+                    label="Pending items",
+                )
+
+                gr.Markdown("---")
+
+                # — Review form —
                 gr.Markdown(
                     "Edit Chokri/English if needed, add your name and any notes, "
-                    "then **Approve** or **Reject**. The next pending item loads automatically."
+                    "then **Approve** or **Reject**."
                 )
                 review_status = gr.Textbox(label="Current item", interactive=False)
-                load_btn      = gr.Button("Load next pending item")
 
                 with gr.Row():
                     with gr.Column():
@@ -512,6 +553,9 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
                 fn=_do_login,
                 inputs=[pwd_input, _logged_in],
                 outputs=[_logged_in, login_col, review_col, download_col, login_msg],
+            ).then(
+                fn=load_pending_list,
+                outputs=[pending_tbl, _pending_items],
             )
 
             def _do_logout():
@@ -522,18 +566,33 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
                 outputs=[_logged_in, login_col, review_col, download_col, login_msg],
             )
 
-            load_btn.click(fn=load_review_item, outputs=_REVIEW_OUTPUTS)
+            refresh_list_btn.click(
+                fn=load_pending_list,
+                outputs=[pending_tbl, _pending_items],
+            )
+
+            pending_tbl.select(
+                fn=select_pending_item,
+                inputs=[_pending_items],
+                outputs=_REVIEW_OUTPUTS,
+            )
 
             approve_btn.click(
                 fn=approve_item,
                 inputs=[_current_id, rev_chokri, rev_english, reviewer_name, reviewer_notes, cclb_checkbox],
                 outputs=[action_msg] + _REVIEW_OUTPUTS,
+            ).then(
+                fn=load_pending_list,
+                outputs=[pending_tbl, _pending_items],
             )
 
             reject_btn.click(
                 fn=reject_item,
                 inputs=[_current_id, reviewer_name, reviewer_notes],
                 outputs=[action_msg] + _REVIEW_OUTPUTS,
+            ).then(
+                fn=load_pending_list,
+                outputs=[pending_tbl, _pending_items],
             )
 
     # ── Cross-tab wiring ──────────────────────────────────────────────────────
