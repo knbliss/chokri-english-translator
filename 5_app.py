@@ -159,6 +159,7 @@ def save_contribution(chokri: str, english: str, kind: str, note: str,
     english = english.strip()
     if not chokri or not english:
         return "Both Chokri and English fields are required."
+    preview = chokri[:50] + ("…" if len(chokri) > 50 else "")
     if USE_SUPABASE:
         sb.table("contributions").insert({
             "chokri": chokri, "english": english,
@@ -167,7 +168,7 @@ def save_contribution(chokri: str, english: str, kind: str, note: str,
             "village": village.strip() or None,
         }).execute()
         count = sb.table("contributions").select("id", count="exact").execute().count
-        return f"Saved! Total contributions: {count}"
+        return f"✅ Added: \"{preview}\" — Total contributions: {count}"
     else:
         rows = _csv_all_rows()
         new_id = f"C-{len(rows)+1:04d}"
@@ -178,7 +179,7 @@ def save_contribution(chokri: str, english: str, kind: str, note: str,
             "reviewed_by": "", "reviewer_notes": "", "reviewed_at": "",
         })
         _csv_write_rows(rows)
-        return f"Saved! Total contributions: {len(rows)}"
+        return f"✅ Added: \"{preview}\" — Total contributions: {len(rows)}"
 
 def submit_correction(src, mt, corrected, direction, note):
     if direction == "Chokri → English":
@@ -188,7 +189,10 @@ def submit_correction(src, mt, corrected, direction, note):
     return save_contribution(chokri, english, "correction", note)
 
 def submit_new_pair(chokri, english, note, region, village):
-    return save_contribution(chokri, english, "new_pair", note, region, village)
+    msg = save_contribution(chokri, english, "new_pair", note, region, village)
+    if msg.startswith("✅"):
+        return msg, "", "", "", "", ""   # clear all fields on success
+    return msg, chokri, english, note, region, village  # keep fields on error
 
 # ── Stats & table ──────────────────────────────────────────────────────────
 def get_stats() -> str:
@@ -450,7 +454,7 @@ with gr.Blocks(title="Chokri ↔ English Translator", theme=gr.themes.Soft()) as
             add_status = gr.Textbox(label="Status", interactive=False)
             add_btn.click(fn=submit_new_pair,
                           inputs=[new_chokri, new_english, new_note, new_region, new_village],
-                          outputs=add_status)
+                          outputs=[add_status, new_chokri, new_english, new_note, new_region, new_village])
 
         # ── Tab 4: Contributions ──────────────────────────────────────────
         with gr.Tab("Contributions", id=3):
