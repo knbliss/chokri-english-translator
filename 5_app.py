@@ -49,6 +49,18 @@ if USE_SUPABASE:
         USE_SUPABASE = False
         print("supabase package not found — using CSV fallback.")
 
+def _sb(fn):
+    """Run a Supabase lambda, reconnecting once if the HTTP/2 connection dropped."""
+    global sb
+    for attempt in range(2):
+        try:
+            return fn()
+        except Exception as e:
+            if attempt == 0 and "ConnectionTerminated" in str(e):
+                sb = create_client(SUPABASE_URL, SUPABASE_KEY)
+            else:
+                raise
+
 # ── Load model (background thread so server starts immediately) ────────────
 device       = "cpu"  # resolved in background thread; always cpu on HF free tier
 tokenizer    = None
@@ -107,9 +119,9 @@ def get_translation_stats() -> str:
     if not USE_SUPABASE:
         return ""
     try:
-        total = sb.table("translation_logs").select("id", count="exact").execute().count
+        total = _sb(lambda: sb.table("translation_logs").select("id", count="exact").execute()).count
         today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
-        today = sb.table("translation_logs").select("id", count="exact").gte("created_at", today_start).execute().count
+        today = _sb(lambda: sb.table("translation_logs").select("id", count="exact").gte("created_at", today_start).execute()).count
         return f"🌏 **{total}** translations run total &nbsp;|&nbsp; **{today}** today"
     except Exception:
         return ""
@@ -118,10 +130,10 @@ def _log_translation(direction: str, char_count: int):
     if not USE_SUPABASE:
         return
     try:
-        sb.table("translation_logs").insert({
+        _sb(lambda: sb.table("translation_logs").insert({
             "direction": direction,
             "char_count": char_count,
-        }).execute()
+        }).execute())
     except Exception:
         pass  # never let logging break the translation
 
@@ -161,13 +173,13 @@ def save_contribution(chokri: str, english: str, kind: str, note: str,
         return "Both Chokri and English fields are required."
     preview = chokri[:50] + ("…" if len(chokri) > 50 else "")
     if USE_SUPABASE:
-        sb.table("contributions").insert({
+        _sb(lambda: sb.table("contributions").insert({
             "chokri": chokri, "english": english,
             "type": kind, "note": note.strip(), "status": "pending",
             "region": region.strip() or None,
             "village": village.strip() or None,
-        }).execute()
-        count = sb.table("contributions").select("id", count="exact").execute().count
+        }).execute())
+        count = _sb(lambda: sb.table("contributions").select("id", count="exact").execute()).count
         return f"✅ Added: \"{preview}\" — Total contributions: {count}"
     else:
         rows = _csv_all_rows()
@@ -201,7 +213,7 @@ def submit_new_pair(chokri, english, note, region, village):
 def get_stats() -> str:
     if USE_SUPABASE:
         def count(status):
-            return sb.table("contributions").select("id", count="exact").eq("status", status).execute().count
+            return _sb(lambda: sb.table("contributions").select("id", count="exact").eq("status", status).execute()).count
         p, v, r = count("pending"), count("verified"), count("rejected")
     else:
         rows = _csv_all_rows()
@@ -212,7 +224,7 @@ def get_stats() -> str:
 
 def load_recent():
     if USE_SUPABASE:
-        res = sb.table("contributions").select("*").order("submitted_at", desc=True).limit(50).execute()
+        res = _sb(lambda: sb.table("contributions").select("*").order("submitted_at", desc=True).limit(50).execute())
         return [[r["chokri"], r["english"], r["type"], r.get("note",""),
                  r.get("submitted_at",""), r["status"]] for r in res.data]
     else:
@@ -223,7 +235,7 @@ def load_recent():
 # ── Reviewer helpers ───────────────────────────────────────────────────────
 def _next_pending():
     if USE_SUPABASE:
-        res = sb.table("contributions").select("*").eq("status", "pending").order("submitted_at").limit(1).execute()
+        res = _sb(lambda: sb.table("contributions").select("*").eq("status", "pending").order("submitted_at").limit(1).execute())
         return res.data[0] if res.data else None
     else:
         for row in _csv_all_rows():
@@ -233,7 +245,7 @@ def _next_pending():
 
 def load_pending_list():
     if USE_SUPABASE:
-        res = sb.table("contributions").select("*").eq("status", "pending").order("submitted_at").execute()
+        res = _sb(lambda: sb.table("contributions").select("*").eq("status", "pending").order("submitted_at").execute())
         items = res.data or []
     else:
         items = [r for r in _csv_all_rows() if r.get("status", "pending") == "pending"]
@@ -296,7 +308,7 @@ def _set_status(item_id, new_status, reviewer_name, reviewer_notes,
             update["chokri"] = new_chokri
         if new_english:
             update["english"] = new_english
-        sb.table("contributions").update(update).eq("id", item_id).execute()
+        _sb(lambda: sb.table("contributions").update(update).eq("id", item_id).execute())
     else:
         rows = _csv_all_rows()
         for row in rows:
@@ -334,9 +346,9 @@ def reject_item(item_id, reviewer_name, reviewer_notes):
 
 def download_verified():
     if USE_SUPABASE:
-        res = sb.table("contributions").select(
+        res = _sb(lambda: sb.table("contributions").select(
             "chokri,english,type,region,village,is_cclb_standard,reviewer_notes"
-        ).eq("status", "verified").execute()
+        ).eq("status", "verified").execute())
         rows = res.data
     else:
         rows = [r for r in _csv_all_rows() if r.get("status") == "verified"]
