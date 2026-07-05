@@ -189,7 +189,10 @@ def submit_correction(src, mt, corrected, direction, note):
     return save_contribution(chokri, english, "correction", note)
 
 def submit_new_pair(chokri, english, note, region, village):
-    msg = save_contribution(chokri, english, "new_pair", note, region, village)
+    try:
+        msg = save_contribution(chokri, english, "new_pair", note, region, village)
+    except Exception as e:
+        msg = f"❌ Error: {e}"
     if msg.startswith("✅"):
         return msg, "", "", "", "", ""   # clear all fields on success
     return msg, chokri, english, note, region, village  # keep fields on error
