@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "Chokri Flashcards",
+    "slug": "chokri-flashcards",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "bundleIdentifier": "com.knbliss.chokriflashcards",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.knbliss.chokriflashcards",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a1cc91a9-9fea-4003-af62-dcc4a0da0bfa"
+      }
+    },
+    "owner": "knbliss"
+  }
+}
