@@ -2,7 +2,12 @@ name: Keep Supabase Active
 
 on:
   schedule:
-    - cron: '0 8 */5 * *'   # Every 5 days at 08:00 UTC
+    # Mondays and Thursdays at 08:00 UTC. Day-of-week based (not
+    # day-of-month) so the gap between runs is always <= 4 days,
+    # regardless of month length -- the old '*/5 * *' day-of-month
+    # schedule could leave an 8-day gap across a short month (e.g.
+    # Feb 25 -> Mar 5), which exceeds Supabase's 7-day pause threshold.
+    - cron: '0 8 * * 1,4'
   workflow_dispatch:          # Allow manual trigger from GitHub Actions tab
 
 jobs:
